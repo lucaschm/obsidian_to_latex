@@ -83,18 +83,29 @@ class FileIndex:
         # Normalize path format
         name = name.replace("\\", "/")
 
-        # 1. Direct relative path match
+        # 1. Exact match (full relative path with extension)
         if name in self.by_relpath:
             return self.by_relpath[name]
 
-        # 2. Try adding extension (if missing)
-        if "." not in Path(name).name:
-            for ext in [".md", ".png", ".jpg", ".jpeg", ".svg"]:
-                candidate = name + ext
-                if candidate in self.by_relpath:
-                    return self.by_relpath[candidate]
+        # 2. If extension is present -> match by filename EXACTLY
+        if "." in Path(name).name:
+            filename = Path(name).name
 
-        # 3. Fallback: filename only
+            matches = [
+                path for path in self.by_stem.get(Path(name).stem, [])
+                if path.name == filename
+            ]
+
+            if len(matches) == 1:
+                return matches[0]
+
+            if len(matches) > 1:
+                print(f"Warning: multiple exact matches for '{name}', using first: {matches[0]}")
+                return matches[0]
+
+            return None  # IMPORTANT: do NOT fallback to wrong file
+
+        # 3. No extension -> fallback to stem match
         stem = Path(name).stem
         matches = self.by_stem.get(stem, [])
 
@@ -105,6 +116,7 @@ class FileIndex:
             print(f"Warning: multiple matches for '{name}', using first: {matches[0]}")
 
         return matches[0]
+
 # =========================
 # Content Processors
 # =========================
