@@ -47,19 +47,35 @@ class FileIndex:
         self.build_index(root)
 
     def build_index(self, root: Path):
-        for path in root.rglob("*"):
-            if path.is_file():
-                rel = path.relative_to(self.root).as_posix()
+        import os
 
-                # full relative path (with extension)
-                self.by_relpath[rel] = path
+        visited = set()
 
-                # also store without extension
-                rel_no_ext = str(Path(rel).with_suffix(""))
-                self.by_relpath[rel_no_ext] = path
+        for dirpath, dirnames, filenames in os.walk(root, followlinks=True):
+            dirpath = Path(dirpath)
 
-                # stem index
-                self.by_stem[path.stem].append(path)
+            real_dir = dirpath.resolve()
+            if real_dir in visited:
+                continue
+            visited.add(real_dir)
+
+            for filename in filenames:
+                path = dirpath / filename  # ← IMPORTANT: keep logical path
+
+                try:
+                    resolved = path.resolve()
+                except Exception:
+                    continue
+
+                # THIS is what Obsidian uses
+                rel = path.relative_to(root).as_posix()
+
+                # Store lookup keys (Obsidian-style)
+                self.by_relpath[rel] = resolved
+                self.by_relpath[str(Path(rel).with_suffix(""))] = resolved
+
+                # Stem lookup
+                self.by_stem[path.stem].append(resolved)
 
     def find(self, name: str) -> Optional[Path]:
         name = name.strip()
