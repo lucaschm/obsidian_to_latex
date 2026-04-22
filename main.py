@@ -89,7 +89,7 @@ class FileIndex:
 
         # 2. Try adding extension (if missing)
         if "." not in Path(name).name:
-            for ext in [".md", ".png", ".jpg", ".jpeg", ".pdf"]:
+            for ext in [".md", ".png", ".jpg", ".jpeg", ".svg"]:
                 candidate = name + ext
                 if candidate in self.by_relpath:
                     return self.by_relpath[candidate]
@@ -159,7 +159,7 @@ class ObsidianMacroResolver(ContentProcessor):
             raise RuntimeError(f"Cycle detected: {cycle}")
 
         # --- IMAGE HANDLING ---
-        if path.suffix.lower() in [".png", ".jpg", ".jpeg", ".pdf"]:
+        if path.suffix.lower() in [".png", ".jpg", ".jpeg", ".svg"]:
             if INCLUDE_IMAGES:
                 return f"\\includegraphics[width=\\textwidth]{{{path.as_posix()}}}"
             else:
