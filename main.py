@@ -236,6 +236,9 @@ class ObsidianLinkConverter(ContentProcessor):
     def format_output(self, label: str, key: str) -> str:
         if self.mode == "bold":
             return f"\\textbf{{{label}}}"
+        
+        elif self.mode == "italic":
+            return f"\\textit{{{label}}}"
 
         elif self.mode == "gls":
             return f"\\gls{{{key}}}"
@@ -290,7 +293,7 @@ class LatexGenerator:
             YAMLRemover(),
             NotesRemover(),
             ObsidianMacroResolver(self.file_index),
-            ObsidianLinkConverter(mode="bold"),
+            ObsidianLinkConverter(mode="italic"),
             PandocCitationToLatexProcessor(),
             PandocConverter()
         ])
