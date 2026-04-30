@@ -58,6 +58,7 @@ class LatexGenerator:
             SimpleDataviewProcessor(self.root),
             ObsidianMacroResolver(self.file_index),
             ObsidianLinkConverter(mode="italic"),
+            MarkdownTableToLatexProcessor(),
             PandocCitationToLatexProcessor(),
             PandocConverter()
         ])

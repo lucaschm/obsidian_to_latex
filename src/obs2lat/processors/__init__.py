@@ -6,3 +6,4 @@ from .obsidian_macro_resolver import *
 from .pandoc_citation_to_latex_processor import *
 from .pandoc_converter import *
 from .yaml_remover import *
+from .markdown_table_to_latex_converter import *
