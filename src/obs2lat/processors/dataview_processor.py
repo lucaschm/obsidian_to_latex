@@ -25,24 +25,47 @@ class SimpleDataviewProcessor(ContentProcessor):
     def replace_dataview(self, match):
         query = match.group(1).strip()
 
-        fields, folder = self.parse_query(query)
+        fields, folder, sort_info = self.parse_query(query)
         if not fields or not folder:
             return "% Unsupported dataview query"
 
         rows = self.collect_rows(folder, fields)
 
+        # Apply sorting
+        if sort_info:
+            rows = self.sort_rows(rows, fields, sort_info)
+
         return self.build_markdown_table(fields, rows)
+
+
+    def sort_rows(self, rows, fields, sort_info):
+        field_name, order = sort_info
+
+        # Find column index
+        index = None
+        for i, (field, _) in enumerate(fields):
+            if field.lower() == field_name.lower():
+                index = i
+                break
+
+        if index is None:
+            return rows  # field not found -> no sorting
+
+        reverse = order == "DESC"
+
+        return sorted(rows, key=lambda r: r[index].lower(), reverse=reverse)
 
     # =========================
     # Query Parsing
     # =========================
 
-    def parse_query(self, query: str) -> Tuple[List[Tuple[str, str]], str]:
+    def parse_query(self, query: str):
         table_match = re.search(r"TABLE\s+(.*?)\n", query, re.IGNORECASE)
         from_match = re.search(r'FROM\s+"([^"]+)"', query, re.IGNORECASE)
+        sort_match = re.search(r"SORT\s+([^\n]+)", query, re.IGNORECASE)
 
         if not table_match or not from_match:
-            return [], ""
+            return [], "", None
 
         field_part = table_match.group(1)
         folder = from_match.group(1)
@@ -62,7 +85,18 @@ class SimpleDataviewProcessor(ContentProcessor):
         if not any(f[0].lower() == "file.name" for f in fields):
             fields.insert(0, ("file.name", "File"))
 
-        return fields, folder
+        # --- Parse SORT ---
+        sort_info = None
+        if sort_match:
+            sort_part = sort_match.group(1).strip()
+
+            parts = sort_part.split()
+            field = parts[0]
+            order = parts[1].upper() if len(parts) > 1 else "ASC"
+
+            sort_info = (field.strip(), order)
+
+        return fields, folder, sort_info
 
     # =========================
     # Data Collection
