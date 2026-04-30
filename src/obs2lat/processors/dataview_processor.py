@@ -38,12 +38,6 @@ class SimpleDataviewProcessor(ContentProcessor):
     # =========================
 
     def parse_query(self, query: str) -> Tuple[List[Tuple[str, str]], str]:
-        """
-        Returns:
-        - list of (field, alias)
-        - folder path
-        """
-
         table_match = re.search(r"TABLE\s+(.*?)\n", query, re.IGNORECASE)
         from_match = re.search(r'FROM\s+"([^"]+)"', query, re.IGNORECASE)
 
@@ -57,7 +51,7 @@ class SimpleDataviewProcessor(ContentProcessor):
         for part in field_part.split(","):
             part = part.strip()
 
-            alias_match = re.match(r"(\w+)\s+as\s+(.+)", part, re.IGNORECASE)
+            alias_match = re.match(r"(\w+(?:\.\w+)*)\s+as\s+(.+)", part, re.IGNORECASE)
             if alias_match:
                 field, alias = alias_match.groups()
             else:
@@ -65,11 +59,29 @@ class SimpleDataviewProcessor(ContentProcessor):
 
             fields.append((field.strip(), alias.strip()))
 
+        if not any(f[0].lower() == "file.name" for f in fields):
+            fields.insert(0, ("file.name", "File"))
+
         return fields, folder
 
     # =========================
     # Data Collection
     # =========================
+
+    def resolve_field(self, field: str, file: Path, metadata: Dict[str, str]):
+        field = field.strip()
+
+        # --- Special Dataview fields ---
+        if field == "file.name":
+            return f"[[{file.stem}]]"
+        if field == "file.path":
+            return file.as_posix()
+
+        if field == "file.folder":
+            return file.parent.name
+
+        # --- YAML metadata fallback ---
+        return metadata.get(field, "")
 
     def collect_rows(self, folder: str, fields: List[Tuple[str, str]]):
         folder_path = self.root / folder
@@ -83,7 +95,7 @@ class SimpleDataviewProcessor(ContentProcessor):
 
             row = []
             for field, _ in fields:
-                value = metadata.get(field, "")
+                value = self.resolve_field(field, file, metadata)
                 row.append(str(value))
 
             rows.append(row)
