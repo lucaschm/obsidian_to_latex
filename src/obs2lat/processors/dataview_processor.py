@@ -4,6 +4,7 @@ from typing import List, Dict, Tuple
 
 from .content_processor import ContentProcessor 
 from obs2lat.constants import *
+from obs2lat.util import strip_quotes
 
 
 class SimpleDataviewProcessor(ContentProcessor):
@@ -153,7 +154,8 @@ class SimpleDataviewProcessor(ContentProcessor):
         for line in yaml_text.split("\n"):
             if ":" in line:
                 key, value = line.split(":", 1)
-                data[key.strip()] = value.strip()
+                value = strip_quotes(value.strip())
+                data[key.strip()] = value
 
         return data
 
