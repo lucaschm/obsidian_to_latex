@@ -1,6 +1,7 @@
 import re
 
 from .content_processor import ContentProcessor 
+from obs2lat.util import latex_escape
 
 class MarkdownTableToLatexProcessor(ContentProcessor):
     def process(self, text: str) -> str:
@@ -18,6 +19,12 @@ class MarkdownTableToLatexProcessor(ContentProcessor):
         rows = [
             [c.strip() for c in line.strip("|").split("|")]
             for line in lines[2:]
+        ]
+
+        headers = [latex_escape(h) for h in headers]
+        rows = [
+            [latex_escape(c) for c in row]
+            for row in rows
         ]
 
         col_count = len(headers)
