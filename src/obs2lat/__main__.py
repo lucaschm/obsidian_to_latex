@@ -60,6 +60,7 @@ class LatexGenerator:
             ObsidianLinkConverter(mode="italic"),
             MarkdownTableToLatexProcessor(),
             PandocCitationToLatexProcessor(),
+            CodeBlockProcessor(),
             PandocConverter()
         ])
 

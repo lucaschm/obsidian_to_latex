@@ -7,3 +7,4 @@ from .pandoc_citation_to_latex_processor import *
 from .pandoc_converter import *
 from .yaml_remover import *
 from .markdown_table_to_latex_converter import *
+from .code_block_processor import *
