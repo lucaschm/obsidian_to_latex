@@ -2,6 +2,7 @@ import re
 
 from .content_processor import ContentProcessor 
 from obs2lat.constants import *
+from obs2lat.util import latex_escape
 
 class ObsidianLinkConverter(ContentProcessor):
     def __init__(self, mode="bold"):
@@ -25,6 +26,9 @@ class ObsidianLinkConverter(ContentProcessor):
         return self.format_output(label, key)
 
     def format_output(self, label: str, key: str) -> str:
+        label = latex_escape(label)
+        key = latex_escape(key)
+        
         if self.mode == "bold":
             return f"\\textbf{{{label}}}"
         
