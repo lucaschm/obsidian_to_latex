@@ -61,6 +61,7 @@ class LatexGenerator:
             MarkdownTableToLatexProcessor(),
             PandocCitationToLatexProcessor(),
             CodeBlockProcessor(),
+            ObsidianCommentRemover(),
             PandocConverter()
         ])
 
