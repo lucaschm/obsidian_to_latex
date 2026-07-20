@@ -8,8 +8,9 @@ from obs2lat.util import strip_quotes
 
 
 class SimpleDataviewProcessor(ContentProcessor):
-    def __init__(self, root: Path):
+    def __init__(self, root: Path, include_file_column: bool = True):
         self.root = root
+        self.include_file_column = include_file_column
 
     def process(self, text: str) -> str:
         return re.sub(
@@ -83,8 +84,9 @@ class SimpleDataviewProcessor(ContentProcessor):
 
             fields.append((field.strip(), alias.strip()))
 
-        if not any(f[0].lower() == "file.name" for f in fields):
-            fields.insert(0, ("file.name", "File"))
+        if self.include_file_column:
+            if not any(f[0].lower() == "file.name" for f in fields):
+                fields.insert(0, ("file.name", "File"))
 
         # --- Parse SORT ---
         sort_info = None

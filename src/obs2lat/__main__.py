@@ -55,7 +55,7 @@ class LatexGenerator:
         self.pipeline = ProcessingPipeline([
             YAMLRemover(),
             NotesRemover(),
-            SimpleDataviewProcessor(self.root),
+            SimpleDataviewProcessor(self.root, include_file_column=False),
             ObsidianMacroResolver(self.file_index),
             ObsidianLinkConverter(mode="italic"),
             MarkdownTableToLatexProcessor(),
