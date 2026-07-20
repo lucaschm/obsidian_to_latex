@@ -1,18 +1,9 @@
-import pypandoc
-
-import os
-import re
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Optional
 
 from obs2lat.processors import *
 from obs2lat.file_index import FileIndex
 from obs2lat.constants import *
-
-# =========================
-# Configuration (Adjustable)
-# =========================
-
 
 
 # =========================
@@ -89,8 +80,11 @@ class LatexGenerator:
 
             processed = self.pipeline.run(content)
 
-            output.append(f"\\section{{{section_title}}}")
-            output.append(processed)
+            if prefix == "0":
+                output.append(processed)
+            else:
+                output.append(f"\\section{{{section_title}}}")
+                output.append(processed)
 
         output_path = self.output_dir / f"{folder.name}.tex"
         output_path.write_text("\n\n".join(output), encoding="utf-8")
