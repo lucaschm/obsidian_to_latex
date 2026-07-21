@@ -5,8 +5,9 @@ from obs2lat.file_index import FileIndex
 from obs2lat.constants import *
 
 class ObsidianMacroResolver(ContentProcessor):
-    def __init__(self, file_index: FileIndex):
+    def __init__(self, file_index: FileIndex, preprocessors=None):
         self.file_index = file_index
+        self.preprocessors = preprocessors or []
 
     def process(self, text: str, stack=None) -> str:
         if stack is None:
@@ -45,6 +46,9 @@ class ObsidianMacroResolver(ContentProcessor):
         new_stack = stack + [path]
 
         content = path.read_text(encoding="utf-8")
+
+        for processor in self.preprocessors:
+            content = processor.process(content)
 
         # Recursively resolve with updated stack
         content = self.process(content, new_stack)

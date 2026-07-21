@@ -47,7 +47,10 @@ class LatexGenerator:
             YAMLRemover(),
             NotesRemover(),
             SimpleDataviewProcessor(self.root, include_file_column=False),
-            ObsidianMacroResolver(self.file_index),
+            ObsidianMacroResolver(
+                self.file_index, 
+                preprocessors=[YAMLRemover(), NotesRemover()]
+            ),
             ObsidianLinkConverter(mode="italic"),
             MarkdownTableToLatexProcessor(),
             PandocCitationToLatexProcessor(),
