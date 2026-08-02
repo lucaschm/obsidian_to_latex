@@ -29,7 +29,9 @@ class ObsidianLinkConverter(ContentProcessor):
         label = latex_escape(label)
         key = latex_escape(key)
         
-        if self.mode == "bold":
+        if self.mode is None:
+            return label
+        elif self.mode == "bold":
             return f"\\textbf{{{label}}}"
         
         elif self.mode == "italic":

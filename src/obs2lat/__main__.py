@@ -51,7 +51,7 @@ class LatexGenerator:
                 self.file_index, 
                 preprocessors=[YAMLRemover(), NotesRemover()]
             ),
-            ObsidianLinkConverter(mode="italic"),
+            ObsidianLinkConverter(mode=None),
             MarkdownTableToLatexProcessor(),
             PandocCitationToLatexProcessor(),
             CodeBlockProcessor(),
